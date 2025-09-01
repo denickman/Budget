@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:finapp/widgets/available/available_status.dart';
 
 class AvailableScreen extends StatefulWidget {
   const AvailableScreen({super.key});
@@ -33,34 +34,32 @@ class _AvailableScreenState extends State<AvailableScreen> {
   // ===== Methods ======
 
   // Function for calculating sectors
-  List<PieChartSectionData> getSections(
-    double initial,
-    double spent,
-    double circleSize,
-  ) {
-    double gray = spent > initial ? initial : spent; // spent within budget
-    double red = spent > initial ? spent - initial : 0; // overspending
-    double green = spent < initial ? initial - spent : 0; // saved
-    double white = initial; // total amount of available funds
+ List<PieChartSectionData> getSections(
+  double initial,
+  double spent,
+  double circleSize,
+) {
+  final spentWithinBudget = spent > initial ? initial : spent;
+  final overspent = spent > initial ? spent - initial : 0;
+  final saved = spent < initial ? initial - spent : 0;
 
-    PieChartSectionData makeSection(double value, Color color) {
-      final double radius = circleSize * 0.30;
-      return PieChartSectionData(
-        value: value,
-        color: color,
-        radius: radius,
-        showTitle: false,
-      );
-    }
-
-    final sections = <PieChartSectionData>[];
-    if (white > 0) sections.add(makeSection(white, Colors.blue));
-    if (gray > 0) sections.add(makeSection(gray, Colors.grey));
-    if (red > 0) sections.add(makeSection(red, Colors.red));
-    if (green > 0) sections.add(makeSection(green, Colors.green));
-
-    return sections;
+  PieChartSectionData makeSection(double value, Color color) {
+    return PieChartSectionData(
+      value: value,
+      color: color,
+      radius: circleSize * 0.30,
+      showTitle: false,
+    );
   }
+
+  return [
+    if (spentWithinBudget > 0) makeSection(spentWithinBudget, Colors.grey),
+    if (overspent > 0) makeSection(overspent.toDouble(), Colors.red),                  
+    if (saved > 0) makeSection(saved.toDouble(), Colors.green),                       
+    makeSection(initial, Colors.blue),                                     
+  ];
+}
+
 
   IconData getCenterIcon(double initial, double spent) {
     if (spent > initial) return Icons.thumb_down;
@@ -72,12 +71,16 @@ class _AvailableScreenState extends State<AvailableScreen> {
     return initial - spent;
   }
 
-  Widget _buildExpandedText() {
+  Widget _showAvailableStatus() {
+    if (_selectedPeriodIndex == null) {
+      return Container(); // Пустой контейнер, если период не выбран
+    }
     return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Text(
-        'Available Budget in details',
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      padding: const EdgeInsets.all(2.0),
+      child: AvailableStatus(
+        period: periods[_selectedPeriodIndex!],
+        isSelected: true,
+        onPeriodSelected: (index) => setState(() => _selectedPeriodIndex = index),
       ),
     );
   }
@@ -130,7 +133,7 @@ class _AvailableScreenState extends State<AvailableScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 5),
                 Text(
                   period['label'],
                   textAlign: TextAlign.center,
@@ -147,7 +150,6 @@ class _AvailableScreenState extends State<AvailableScreen> {
                     fontSize: 14,
                   ),
                 ),
-
                 AnimatedContainer(
                   duration: Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
@@ -165,55 +167,6 @@ class _AvailableScreenState extends State<AvailableScreen> {
     );
   }
 
-
-/*
-  Widget _buildPeriodCircles(BuildContext context) {
-    final periods = [
-      "Q1",
-      "Q2",
-      "Q3",
-      "Q4",
-      "Q5",
-      "Q6",
-      "Q7",
-    ]; // example of initial data
-    const double circleSize = 80.0;
-    const double spacing = 10.0;
-
-    return Wrap(
-      spacing: spacing,
-      runSpacing: spacing,
-      alignment: WrapAlignment.center,
-      children: periods.asMap().entries.map((entry) {
-        final index = entry.key;
-        final period = entry.value;
-
-        return SizedBox(
-          width: circleSize,
-          height: circleSize,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: index == 2
-                  ? Colors.blue
-                  : Colors.grey[300], // example of hightlight
-            ),
-            child: Center(
-              child: Text(
-                period,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-  */
-
   // ===== Lifecycle ======
 
   @override
@@ -223,7 +176,13 @@ class _AvailableScreenState extends State<AvailableScreen> {
         child: Column(
           children: [
             ListTile(
-              title: Text('Available Budget'),
+              title: Text(
+                'Available Budget',
+                style: GoogleFonts.lato(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
               trailing: IconButton(
                 icon: Icon(
                   _isExpanded
@@ -232,15 +191,14 @@ class _AvailableScreenState extends State<AvailableScreen> {
                 ),
                 onPressed: () {
                   setState(() => _isExpanded = !_isExpanded);
-                  print('Expand DATA!');
                 },
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(2.0),
               child: _buildPeriodCircles(context),
             ),
-            if (_isExpanded) _buildExpandedText(),
+            if (_isExpanded) _showAvailableStatus(),
           ],
         ),
       ),
