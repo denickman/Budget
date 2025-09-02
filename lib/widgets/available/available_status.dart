@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:finapp/models/temp_data.dart';
+import 'package:finapp/widgets/available/remaining_line.dart';
 
 class AvailableStatus extends StatelessWidget {
   // ===== Init ======
@@ -116,6 +117,12 @@ class AvailableStatus extends StatelessWidget {
             getCenterIcon: getCenterIcon,
           ),
           SizedBox(height: 8),
+
+          RemainingLine(
+            initial: initial,
+            spent: spent,
+            getRemaining: getRemaining,
+          ),
 
           Row(children: buildSegments(initial, spent)),
 
