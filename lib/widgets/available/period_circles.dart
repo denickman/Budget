@@ -3,13 +3,12 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PeriodCircles extends StatelessWidget {
-
   // ===== Properties =====
   final List<Map<String, dynamic>> periods;
   final int? selectedPeriodIndex;
   final Function(int) onSelect;
 
-// ===== Init =====
+  // ===== Init =====
   const PeriodCircles({
     super.key,
     required this.periods,
@@ -17,7 +16,7 @@ class PeriodCircles extends StatelessWidget {
     required this.onSelect,
   });
 
-// ===== Methods =====
+  // ===== Methods =====
   List<PieChartSectionData> getSections(
     double initial,
     double spent,
@@ -54,7 +53,7 @@ class PeriodCircles extends StatelessWidget {
     return initial - spent;
   }
 
-// ===== Lifecycle =====
+  // ===== Lifecycle =====
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -63,77 +62,81 @@ class PeriodCircles extends StatelessWidget {
     final availableWidth = screenWidth - (spacing * (itemsPerRow + 1));
     final circleSize = availableWidth / itemsPerRow;
 
-    return Wrap(
-      spacing: spacing,
-      runSpacing: spacing,
-      alignment: WrapAlignment.center,
-      children: periods.asMap().entries.map((entry) {
-        int index = entry.key;
-        var period = entry.value;
-        double initial = period['initial'];
-        double spent = period['spent'];
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.symmetric(horizontal: spacing),
+      child: Row(
+        children: periods.asMap().entries.map((entry) {
+          int index = entry.key;
+          var period = entry.value;
+          double initial = period['initial'];
+          double spent = period['spent'];
 
-        return GestureDetector(
-          onTap: () => onSelect(index),
-          child: SizedBox(
-            width: circleSize,
-            child: Column(
-              children: [
-                Stack(
-                  alignment: Alignment.center,
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GestureDetector(
+              onTap: () => onSelect(index),
+              child: SizedBox(
+                width: circleSize,
+                child: Column(
                   children: [
-                    SizedBox(
-                      width: circleSize,
-                      height: circleSize,
-                      child: PieChart(
-                        PieChartData(
-                          sections: getSections(initial, spent, circleSize),
-                          centerSpaceRadius: circleSize * 0.25,
-                          sectionsSpace: 2,
-                          borderData: FlBorderData(show: false),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          width: circleSize,
+                          height: circleSize,
+                          child: PieChart(
+                            PieChartData(
+                              sections: getSections(initial, spent, circleSize),
+                              centerSpaceRadius: circleSize * 0.25,
+                              sectionsSpace: 2,
+                              borderData: FlBorderData(show: false),
+                            ),
+                          ),
                         ),
+                        Icon(
+                          getCenterIcon(initial, spent),
+                          size: circleSize * 0.3,
+                          color: spent > initial
+                              ? Colors.red
+                              : (spent < initial ? Colors.green : Colors.black),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      period['label'],
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.lato(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
                       ),
                     ),
-                    Icon(
-                      getCenterIcon(initial, spent),
-                      size: circleSize * 0.3,
-                      color: spent > initial
-                          ? Colors.red
-                          : (spent < initial ? Colors.green : Colors.black),
+                    Text(
+                      getRemaining(initial, spent).toStringAsFixed(0),
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.lato(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
                     ),
+                    AnimatedContainer(
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      margin: EdgeInsets.only(top: 4),
+                      height: 2,
+                      width: selectedPeriodIndex == index ? 24 : 0,
+                      color: Colors.blue,
+                    ),
+                    SizedBox(height: 4),
                   ],
                 ),
-                SizedBox(height: 5),
-                Text(
-                  period['label'],
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.lato(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                Text(
-                  getRemaining(initial, spent).toStringAsFixed(0),
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.lato(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  margin: EdgeInsets.only(top: 4),
-                  height: 2,
-                  width: selectedPeriodIndex == index ? 24 : 0,
-                  color: Colors.blue,
-                ),
-                SizedBox(height: 4),
-              ],
+              ),
             ),
-          ),
-        );
-      }).toList(),
+          );
+        }).toList(),
+      ),
     );
   }
 }
