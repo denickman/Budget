@@ -28,11 +28,12 @@ class _AvailableScreenState extends State<AvailableScreen> {
 
     return [
       TempData(label: 'Today', initial: 100.0, spent: 25.0),
-      TempData(label: 'Week', initial: 500.0, spent: 550.0),
-      TempData(label: currentMonth, initial: 2000.0, spent: 1800.0),
+      TempData(label: 'Week', initial: 140.0, spent: 20.0),
+      TempData(label: 'Week', initial: 140.0, spent: 50.0),
+      TempData(label: currentMonth, initial: 3000.0, spent: 100.0),
       TempData(label: currentYear, initial: 10000.0, spent: 15000.0),
-      TempData(label: '${year + 1}', initial: 10000.0, spent: 5000.0),
-      TempData(label: '${year + 2}', initial: 10000.0, spent: 0.0),
+      // TempData(label: '${year + 1}', initial: 10000.0, spent: 5000.0),
+      // TempData(label: '${year + 2}', initial: 10000.0, spent: 0.0),
     ];
   }
 
@@ -44,7 +45,7 @@ class _AvailableScreenState extends State<AvailableScreen> {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: AvailableStatus(
-        period: mockPeriods[_selectedPeriodIndex!], // теперь TempData
+        period: mockPeriods[_selectedPeriodIndex!],
         isSelected: true,
       ),
     );
@@ -76,17 +77,15 @@ class _AvailableScreenState extends State<AvailableScreen> {
                 },
               ),
             ),
-            // Padding(
-            //   padding: const EdgeInsets.all(2.0),
-            //   child:
-               PeriodCircles(
-                periods: mockPeriods, // теперь List<TempData>
+            Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: PeriodCircles(
+                periods: mockPeriods,
                 selectedPeriodIndex: _selectedPeriodIndex,
                 onSelect: (index) =>
                     setState(() => _selectedPeriodIndex = index),
               ),
-            // ),
-
+            ),
             if (_isExpanded) _showAvailableStatus(),
           ],
         ),

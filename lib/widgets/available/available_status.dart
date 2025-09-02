@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:finapp/models/temp_data.dart';
 import 'package:finapp/widgets/available/remaining_line.dart';
+import 'dart:math' as math; // Для min/max
 
 class AvailableStatus extends StatelessWidget {
   // ===== Init ======
@@ -16,36 +17,37 @@ class AvailableStatus extends StatelessWidget {
   final bool isSelected;
 
   // ===== Methods ======
-  IconData getCenterIcon(double initial, double spent) {
-    if (spent > initial) return Icons.thumb_down;
-    if (spent < initial) return Icons.thumb_up;
+  IconData getCenterIcon(double expected, double spent) {
+    if (spent > expected) return Icons.thumb_down;
+    if (spent < expected) return Icons.thumb_up;
     return Icons.balance;
   }
 
   double getRemaining(double initial, double spent) => initial - spent;
 
   List<Widget> buildSegments(double initial, double spent) {
-    double gray = spent > initial ? initial : spent;
-    double red = spent > initial ? spent - initial : 0;
-    double green = spent < initial ? initial - spent : 0;
+    double expected = period.expected;
+    double gray = math.min(spent, expected);
+    double red = math.max(0.0, spent - expected);
+    double green = math.max(0.0, expected - spent);
+    double future = initial - expected;
     double total = initial + red;
 
     const segmentSpacing = 2.0;
     List<Widget> segments = [];
 
-    // 1. Синий сегмент (available)
-    if (initial > 0) {
+    // 1. Синий сегмент (future)
+    if (future > 0) {
       segments.add(
         Expanded(
-          flex: (initial / total * 100).round(),
-          child: ColoredSegment(color: Colors.blue),
+          flex: (future / total * 100).round(),
+          child: ColoredSegment(color: Colors.white),
         ),
       );
     }
 
     // 2. Зелёный сегмент (экономия)
     if (green > 0) {
-      // Если есть синий, зеленый с ним сливается → без SizedBox
       segments.add(
         Expanded(
           flex: (green / total * 100).round(),
@@ -53,13 +55,11 @@ class AvailableStatus extends StatelessWidget {
         ),
       );
     } else {
-      // Если зеленого нет, оставить промежуток между синим и остальными сегментами
       segments.add(SizedBox(width: segmentSpacing));
     }
 
     // 3. Красный сегмент (перерасход)
     if (red > 0) {
-      // Красный всегда сливается с серым → без SizedBox
       segments.add(
         Expanded(
           flex: (red / total * 100).round(),
@@ -68,9 +68,8 @@ class AvailableStatus extends StatelessWidget {
       );
     }
 
-    // 4. Серый сегмент (spent)
+    // 4. Серый сегмент (spent up to expected)
     if (gray > 0) {
-      // Промежуток между серым и красным только если красного нет
       if (red == 0) segments.add(SizedBox(width: segmentSpacing));
       segments.add(
         Expanded(
@@ -88,10 +87,10 @@ class AvailableStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     double initial = period.initial;
     double spent = period.spent;
-
-    double gray = spent > initial ? initial : spent;
-    double red = spent > initial ? spent - initial : 0;
-    double green = spent < initial ? initial - spent : 0;
+    double expected = period.expected;
+    double gray = math.min(spent, expected);
+    double red = math.max(0.0, spent - expected);
+    double green = math.max(0.0, expected - spent);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -111,6 +110,7 @@ class AvailableStatus extends StatelessWidget {
           EconomyOverspendExpectedInfoRow(
             initial: initial,
             spent: spent,
+            expected: expected,
             gray: gray,
             red: red,
             green: green,
@@ -131,6 +131,10 @@ class AvailableStatus extends StatelessWidget {
             initial: initial,
             spent: spent,
             getRemaining: getRemaining,
+          ),
+          SizedBox(height: 8),
+          OverallInfo(
+            initial: initial,
           ),
         ],
       ),
@@ -156,6 +160,7 @@ class ColoredSegment extends StatelessWidget {
 class EconomyOverspendExpectedInfoRow extends StatelessWidget {
   final double initial;
   final double spent;
+  final double expected;
   final double gray;
   final double red;
   final double green;
@@ -165,6 +170,7 @@ class EconomyOverspendExpectedInfoRow extends StatelessWidget {
     super.key,
     required this.initial,
     required this.spent,
+    required this.expected,
     required this.gray,
     required this.red,
     required this.green,
@@ -180,7 +186,7 @@ class EconomyOverspendExpectedInfoRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              spent > initial ? 'Overspend' : 'Economy',
+              spent > expected ? 'Overspend' : 'Economy',
               style: GoogleFonts.lato(
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
@@ -189,17 +195,17 @@ class EconomyOverspendExpectedInfoRow extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  getCenterIcon(initial, spent),
+                  getCenterIcon(expected, spent),
                   size: 16,
-                  color: spent > initial
+                  color: spent > expected
                       ? Colors.red
-                      : (spent < initial ? Colors.green : Colors.black),
+                      : (spent < expected ? Colors.green : Colors.black),
                 ),
                 SizedBox(width: 4),
                 Text(
-                  spent > initial
-                      ? '${red.toStringAsFixed(0)}'
-                      : '${green.toStringAsFixed(0)}',
+                  spent > expected
+                      ? red.toStringAsFixed(0)
+                      : green.toStringAsFixed(0),
                   style: GoogleFonts.lato(fontSize: 14),
                 ),
               ],
@@ -208,7 +214,7 @@ class EconomyOverspendExpectedInfoRow extends StatelessWidget {
         ),
         LabelValueWidget(
           label: 'Expected spending',
-          value: initial,
+          value: expected,
           alignment: CrossAxisAlignment.end,
         ),
       ],
@@ -295,5 +301,34 @@ class LabelValueWidget extends StatelessWidget {
           ];
 
     return Column(crossAxisAlignment: alignment, children: children);
+  }
+}
+
+class OverallInfo extends StatelessWidget {
+  final double initial;
+
+  const OverallInfo({
+    super.key,
+    required this.initial,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Overall',
+          style: GoogleFonts.lato(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
+        Text(
+          initial.toStringAsFixed(0),
+          style: GoogleFonts.lato(fontSize: 14),
+        ),
+      ],
+    );
   }
 }

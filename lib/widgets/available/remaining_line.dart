@@ -14,32 +14,55 @@ class RemainingLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final remainingFraction =
-        getRemaining(initial, spent) <= 0 ? 0 : getRemaining(initial, spent) / initial;
-
+    final remaining = getRemaining(initial, spent);
+    final remainingFraction = remaining <= 0 ? 0.0 : remaining / initial;
 
     return Align(
       alignment: Alignment.centerRight,
       child: FractionallySizedBox(
-        widthFactor: getRemaining(initial, spent) <= 0
-            ? 0
-            : getRemaining(initial, spent) / initial,
-        child:
-        Row(
+        widthFactor: remainingFraction,
+        child: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
             Icon(
               Icons.arrow_drop_down,
               color: Colors.grey,
-              ),
+            ),
             Expanded(
-              child: Container(height: 2, color: Colors.grey)
+              child: CustomPaint(
+                painter: DashedLinePainter(),
+                child: SizedBox(height: 2),
+              ),
             ),
           ],
         ),
-        //  Container(height: 2, color: Colors.red),
       ),
     );
   }
+}
+
+class DashedLinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    const dashWidth = 5.0; // Длина штриха
+    const dashSpace = 3.0; // Длина промежутка
+    double startX = 0;
+
+    while (startX < size.width) {
+      canvas.drawLine(
+        Offset(startX, 0),
+        Offset(startX + dashWidth, 0),
+        paint,
+      );
+      startX += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
