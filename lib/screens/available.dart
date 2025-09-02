@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:finapp/widgets/available/available_status.dart';
-import 'package:finapp/widgets/available/period_circles.dart'; // Новый импорт
+import 'package:finapp/widgets/available/period_circles.dart';
+import 'package:finapp/models/temp_data.dart';
 
 class AvailableScreen extends StatefulWidget {
   const AvailableScreen({super.key});
@@ -18,7 +19,7 @@ class _AvailableScreenState extends State<AvailableScreen> {
   bool _isExpanded = false;
   int? _selectedPeriodIndex;
 
-  List<Map<String, dynamic>> get mockPeriods {
+  List<TempData> get mockPeriods {
     final now = DateTime.now();
     final String currentMonth = DateFormat.MMM().format(now);
     final String currentYear = DateFormat.y().format(now);
@@ -26,20 +27,12 @@ class _AvailableScreenState extends State<AvailableScreen> {
     final int year = now.year;
 
     return [
-      {'label': 'Today', 'initial': 100.0, 'spent': 20.0},
-      {'label': 'Week', 'initial': 500.0, 'spent': 600.0},
-      {'label': currentMonth, 'initial': 2000.0, 'spent': 1800.0},
-      {'label': currentYear, 'initial': 24000.0, 'spent': 24000.0},
-      {
-        'label': '${year - 1}',
-        'initial': 20000.0,
-        'spent': 18000.0,
-      },
-      {
-        'label': '${year + 1}',
-        'initial': 26000.0,
-        'spent': 0.0,
-      },
+      TempData(label: 'Today', initial: 100.0, spent: 25.0),
+      TempData(label: 'Week', initial: 500.0, spent: 550.0),
+      TempData(label: currentMonth, initial: 2000.0, spent: 1800.0),
+      TempData(label: currentYear, initial: 10000.0, spent: 15000.0),
+      TempData(label: '${year + 1}', initial: 10000.0, spent: 5000.0),
+      TempData(label: '${year + 2}', initial: 10000.0, spent: 0.0),
     ];
   }
 
@@ -51,7 +44,7 @@ class _AvailableScreenState extends State<AvailableScreen> {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: AvailableStatus(
-        period: mockPeriods[_selectedPeriodIndex!],
+        period: mockPeriods[_selectedPeriodIndex!], // теперь TempData
         isSelected: true,
       ),
     );
@@ -83,15 +76,16 @@ class _AvailableScreenState extends State<AvailableScreen> {
                 },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(2.0),
-              child: PeriodCircles(
-                periods: mockPeriods,
+            // Padding(
+            //   padding: const EdgeInsets.all(2.0),
+            //   child:
+               PeriodCircles(
+                periods: mockPeriods, // теперь List<TempData>
                 selectedPeriodIndex: _selectedPeriodIndex,
                 onSelect: (index) =>
                     setState(() => _selectedPeriodIndex = index),
               ),
-            ),
+            // ),
 
             if (_isExpanded) _showAvailableStatus(),
           ],

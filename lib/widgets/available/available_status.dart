@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:finapp/models/temp_data.dart';
 
 class AvailableStatus extends StatelessWidget {
   // ===== Init ======
@@ -10,7 +11,7 @@ class AvailableStatus extends StatelessWidget {
   });
 
   // ===== Properties ======
-  final Map<String, dynamic> period;
+  final TempData period;
   final bool isSelected;
 
   // ===== Methods ======
@@ -31,110 +32,61 @@ class AvailableStatus extends StatelessWidget {
     const segmentSpacing = 2.0;
     List<Widget> segments = [];
 
-    int blueWeight = (initial / total * 100).round();
-    int grayWeight = (gray / total * 100).round();
-    int redWeight = (red / total * 100).round();
-    int greenWeight = (green / total * 100).round();
-
-    if (blueWeight > 0) {
-      segments.addAll([
+    // 1. Синий сегмент (available)
+    if (initial > 0) {
+      segments.add(
         Expanded(
-          flex: blueWeight,
+          flex: (initial / total * 100).round(),
           child: ColoredSegment(color: Colors.blue),
         ),
-        SizedBox(width: segmentSpacing),
-      ]);
-    }
-    if (grayWeight > 0) {
-      segments.addAll([
-        Expanded(
-          flex: grayWeight,
-          child: ColoredSegment(color: Colors.grey),
-        ),
-        SizedBox(width: segmentSpacing),
-      ]);
-    }
-    if (redWeight > 0) {
-      segments.addAll([
-        Expanded(
-          flex: redWeight,
-          child: ColoredSegment(color: Colors.red),
-        ),
-        SizedBox(width: segmentSpacing),
-      ]);
-    }
-    if (greenWeight > 0) {
-      segments.addAll([
-        Expanded(
-          flex: greenWeight,
-          child: ColoredSegment(color: Colors.green),
-        ),
-        SizedBox(width: segmentSpacing),
-      ]);
+      );
     }
 
-    if (segments.isNotEmpty && segments.last is SizedBox) segments.removeLast();
+    // 2. Зелёный сегмент (экономия)
+    if (green > 0) {
+      // Если есть синий, зеленый с ним сливается → без SizedBox
+      segments.add(
+        Expanded(
+          flex: (green / total * 100).round(),
+          child: ColoredSegment(color: Colors.green),
+        ),
+      );
+    } else {
+      // Если зеленого нет, оставить промежуток между синим и остальными сегментами
+      segments.add(SizedBox(width: segmentSpacing));
+    }
+
+    // 3. Красный сегмент (перерасход)
+    if (red > 0) {
+      // Красный всегда сливается с серым → без SizedBox
+      segments.add(
+        Expanded(
+          flex: (red / total * 100).round(),
+          child: ColoredSegment(color: Colors.red),
+        ),
+      );
+    }
+
+    // 4. Серый сегмент (spent)
+    if (gray > 0) {
+      // Промежуток между серым и красным только если красного нет
+      if (red == 0) segments.add(SizedBox(width: segmentSpacing));
+      segments.add(
+        Expanded(
+          flex: (gray / total * 100).round(),
+          child: ColoredSegment(color: Colors.grey),
+        ),
+      );
+    }
 
     return segments;
   }
 
-  Widget _buildActualSpendingLine(
-  double initial,
-  double spent,
-  BuildContext context,
-) {
-  final total = initial + (spent > initial ? spent - initial : 0);
-  final grayPortion = spent > initial ? initial : spent;
-  final widthFactor = grayPortion / total;
-
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      // Используем ширину контейнера для точного позиционирования
-      final containerWidth = constraints.maxWidth;
-
-      return Stack(
-        alignment: Alignment.centerRight, // Привязка к правому краю
-        children: [
-          // Фоновая линия (для контекста)
-          Container(
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          // Серая линия, начинающаяся справа
-          FractionallySizedBox(
-            widthFactor: widthFactor, // Доля линии
-            alignment: Alignment.centerRight, // Выравнивание вправо
-            child: Container(
-              height: 4,
-              color: Colors.grey,
-            ),
-          ),
-          // Точка в начале серой линии (слева)
-          Positioned(
-            right: widthFactor * containerWidth, // Позиция точки относительно правого края
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: Colors.grey,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  );
-}
-
   // ===== Lifecycle ======
   @override
   Widget build(BuildContext context) {
-    double initial = period['initial'];
-    double spent = period['spent'];
+    double initial = period.initial;
+    double spent = period.spent;
 
     double gray = spent > initial ? initial : spent;
     double red = spent > initial ? spent - initial : 0;
@@ -145,7 +97,6 @@ class AvailableStatus extends StatelessWidget {
       child: Column(
         children: [
           const Divider(color: Colors.grey, thickness: 1),
-
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
@@ -156,7 +107,6 @@ class AvailableStatus extends StatelessWidget {
               ),
             ),
           ),
-
           EconomyOverspendExpectedInfoRow(
             initial: initial,
             spent: spent,
@@ -165,15 +115,11 @@ class AvailableStatus extends StatelessWidget {
             green: green,
             getCenterIcon: getCenterIcon,
           ),
-
           SizedBox(height: 8),
 
-          _buildActualSpendingLine(initial, spent, context),
-
-          SizedBox(height: 4),
           Row(children: buildSegments(initial, spent)),
-          SizedBox(height: 4),
 
+          SizedBox(height: 4),
           RemainingSpentInfoRow(
             initial: initial,
             spent: spent,
@@ -185,7 +131,6 @@ class AvailableStatus extends StatelessWidget {
   }
 }
 
-// Segment line
 class ColoredSegment extends StatelessWidget {
   final Color color;
   const ColoredSegment({super.key, required this.color});
@@ -201,7 +146,6 @@ class ColoredSegment extends StatelessWidget {
   }
 }
 
-// Top info row - economy / overspend + expected spending
 class EconomyOverspendExpectedInfoRow extends StatelessWidget {
   final double initial;
   final double spent;
@@ -265,7 +209,6 @@ class EconomyOverspendExpectedInfoRow extends StatelessWidget {
   }
 }
 
-// Bottom info row - remaining & actual spending
 class RemainingSpentInfoRow extends StatelessWidget {
   final double initial;
   final double spent;
@@ -300,7 +243,6 @@ class RemainingSpentInfoRow extends StatelessWidget {
   }
 }
 
-// label + value
 class LabelValueWidget extends StatelessWidget {
   final String label;
   final double value;
