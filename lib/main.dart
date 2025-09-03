@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: getAppTheme(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-       locale: const Locale('ru'), // hardcoded locale to test
+      locale: const Locale('ru'),
       home: const AvailableScreen(),
     );
   }

@@ -19,6 +19,13 @@ class AppColors {
 
 // Global Text styles 
 class AppTextStyles {
+
+    // for Pads (example)
+    static TextStyle boldExtraLarge = GoogleFonts.lato(
+    fontWeight: FontWeight.bold,
+    fontSize: 30,
+  );
+
   static TextStyle boldLarge = GoogleFonts.lato(
     fontWeight: FontWeight.bold,
     fontSize: 20,

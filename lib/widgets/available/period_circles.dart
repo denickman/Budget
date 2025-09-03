@@ -1,4 +1,3 @@
-// lib/widgets/available/period_circles.dart
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:finapp/constants/app_theme.dart';
@@ -34,14 +33,13 @@ class PeriodCircles extends StatelessWidget {
         radius: circleSize * 0.30,
         showTitle: false,
         borderSide: withBorder
-            ? BorderSide(width: 0.5, color: AppColors.future)
+            ? const BorderSide(width: 0.5, color: AppColors.future)
             : BorderSide.none,
       );
     }
 
     final sections = <PieChartSectionData>[];
 
-    // 1. Grey sector = spent (up to expected), без обводки
     if (period.spent > 0) {
       sections.add(
         makeSection(getGray(period.spent, expected), AppColors.expected, false),
@@ -52,7 +50,6 @@ class PeriodCircles extends StatelessWidget {
     if (overspent > 0) {
       sections.add(makeSection(overspent, AppColors.overspend, false));
     }
-
     // 3. Green sector = saved (if any), с обводкой
     if (saved > 0) {
       sections.add(makeSection(saved, AppColors.economy, true));
@@ -68,8 +65,8 @@ class PeriodCircles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spacing = 25.0;
-    final circleSize = 80.0;
+    const double spacing = 25.0;
+    const double circleSize = 80.0;
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -79,7 +76,6 @@ class PeriodCircles extends StatelessWidget {
           int index = entry.key;
           TempData period = entry.value;
 
-          // Проверяем наличие зелёного сектора (saved)
           final double saved = getGreen(period.expected, period.spent);
           final double sectionsSpace = saved > 0 ? 0.0 : 2.0;
 
@@ -127,12 +123,12 @@ class PeriodCircles extends StatelessWidget {
                       style: AppTextStyles.boldMedium,
                     ),
                     AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
+                      duration: Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
                       margin: const EdgeInsets.only(top: 4),
                       height: 2,
                       width: selectedPeriodIndex == index ? 24 : 0,
-                      color: AppColors.background,
+                      color: AppColors.future,
                     ),
                     const SizedBox(height: 4),
                   ],

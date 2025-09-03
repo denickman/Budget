@@ -1,4 +1,3 @@
-// lib/widgets/available/remaining_line.dart
 import 'package:flutter/material.dart';
 import 'package:finapp/constants/app_theme.dart';
 import 'package:finapp/utils/helpers.dart';
@@ -25,10 +24,7 @@ class RemainingStatus extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Icon(
-              Icons.arrow_drop_down,
-              color: AppColors.dashedLine,
-            ),
+            const Icon(Icons.arrow_drop_down, color: AppColors.dashedLine),
             Expanded(
               child: CustomPaint(
                 painter: DashedLinePainter(),
@@ -50,16 +46,12 @@ class DashedLinePainter extends CustomPainter {
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
-    const dashWidth = 5.0; // Длина штриха
-    const dashSpace = 3.0; // Длина промежутка
+    const double dashWidth = 5.0;
+    const double dashSpace = 3.0;
     double startX = 0;
 
     while (startX < size.width) {
-      canvas.drawLine(
-        Offset(startX, 0),
-        Offset(startX + dashWidth, 0),
-        paint,
-      );
+      canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
       startX += dashWidth + dashSpace;
     }
   }

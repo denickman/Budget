@@ -147,7 +147,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Today'**
-  String get today;
+  String get today; 
 
   /// No description provided for @week.
   ///
