@@ -1,4 +1,5 @@
 // lib/screens/available_screen.dart
+import 'package:finapp/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:finapp/constants/app_theme.dart';
@@ -19,7 +20,7 @@ class _AvailableScreenState extends State<AvailableScreen> {
   bool _isExpanded = false;
   int? _selectedPeriodIndex;
 
-  List<TempData> get _mockPeriods {
+ List<TempData> get _mockPeriods {
     final now = DateTime.now();
     final String currentMonth = DateFormat.MMM().format(now);
     final String currentYear = DateFormat.y().format(now);
@@ -36,6 +37,7 @@ class _AvailableScreenState extends State<AvailableScreen> {
       // TempData(label: '${year + 2}', initial: 10000.0, spent: 0.0),
     ];
   }
+
 
   Widget _showAvailableStatus() {
     if (_selectedPeriodIndex == null) {
@@ -58,7 +60,7 @@ class _AvailableScreenState extends State<AvailableScreen> {
           children: [
             ListTile(
               title: Text(
-                'Available Budget',
+                AppLocalizations.of(context)!.availableBudget,
                 style: AppTextStyles.boldLarge,
               ),
               trailing: IconButton(

@@ -1,0 +1,12 @@
+{
+  "availableBudget": "Доступный бюджет",
+  "status": "Статус",
+  "overspend": "Перерасход",
+  "economy": "Экономия",
+  "expectedSpending": "Ожидаемые расходы",
+  "remaining": "Оставшийся",
+  "actualSpending": "Фактические расходы",
+  "overall": "Общий",
+  "today": "Сегодня",
+  "week": "Неделя"
+}

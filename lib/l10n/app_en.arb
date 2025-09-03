@@ -1,0 +1,12 @@
+{
+  "availableBudget": "Available Budget",
+  "status": "Status",
+  "overspend": "Overspend",
+  "economy": "Economy",
+  "expectedSpending": "Expected spending",
+  "remaining": "Remaining",
+  "actualSpending": "Actual spending",
+  "overall": "Overall",
+  "today": "Today",
+  "week": "Week"
+}

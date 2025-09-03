@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:finapp/constants/app_theme.dart';
 import 'package:finapp/models/temp_data.dart';
 import 'package:finapp/utils/helpers.dart';
-import 'package:finapp/widgets/available/remaining_line.dart';
+import 'package:finapp/widgets/available/remaining_status.dart';
+import 'package:finapp/l10n/app_localizations.dart';
 
 class AvailableStatus extends StatelessWidget {
   const AvailableStatus({
@@ -89,7 +90,7 @@ class AvailableStatus extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'Status',
+              AppLocalizations.of(context)!.status,
               style: AppTextStyles.boldLarge,
             ),
           ),
@@ -102,7 +103,7 @@ class AvailableStatus extends StatelessWidget {
             green: green,
           ),
           const SizedBox(height: 8),
-          RemainingLine(
+          RemainingStatus(
             initial: initial,
             spent: spent,
           ),
@@ -164,7 +165,7 @@ class EconomyOverspendExpectedInfoRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              spent > expected ? 'Overspend' : 'Economy',
+              spent > expected ? AppLocalizations.of(context)!.overspend : AppLocalizations.of(context)!.economy,
               style: AppTextStyles.boldMedium,
             ),
             Row(
@@ -188,7 +189,7 @@ class EconomyOverspendExpectedInfoRow extends StatelessWidget {
           ],
         ),
         LabelValueWidget(
-          label: 'Expected spending',
+          label: AppLocalizations.of(context)!.expectedSpending,
           value: expected,
           alignment: CrossAxisAlignment.end,
         ),
@@ -213,13 +214,13 @@ class RemainingSpentInfoRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         LabelValueWidget(
-          label: 'Remaining',
+          label: AppLocalizations.of(context)!.remaining,
           value: getRemaining(initial, spent),
           alignment: CrossAxisAlignment.start,
           reverseTitlePosition: true,
         ),
         LabelValueWidget(
-          label: 'Actual spending',
+          label: AppLocalizations.of(context)!.actualSpending,
           value: spent,
           alignment: CrossAxisAlignment.end,
           reverseTitlePosition: true,
@@ -285,7 +286,7 @@ class OverallInfo extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Overall',
+          AppLocalizations.of(context)!.overall,
           style: AppTextStyles.boldMedium,
         ),
         Text(

@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:finapp/constants/app_theme.dart';
 import 'package:finapp/utils/helpers.dart';
 
-class RemainingLine extends StatelessWidget {
+class RemainingStatus extends StatelessWidget {
   final double initial;
   final double spent;
 
-  const RemainingLine({
+  const RemainingStatus({
     super.key,
     required this.initial,
     required this.spent,
