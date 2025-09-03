@@ -22,8 +22,8 @@ class SegmentsStatus extends StatelessWidget {
     double green = getGreen(expected, spent);
     double future = initial - expected;
     double total = initial + red;
-    double remaining = math.max(0.0, initial - spent);
-    double dashedLineFraction = (future + green + red) / total;
+    // Пунктирная линия покрывает gray + red (если есть) или gray + green (если есть) или gray (если нет variance)
+    double dashedLineFraction = (gray + (red > 0 ? red : green)) / total;
 
     const double segmentSpacing = 2.0;
     List<Widget> segments = [];
@@ -79,19 +79,19 @@ class SegmentsStatus extends StatelessWidget {
       children: [
         // Пунктирная линия
         Align(
-          alignment: Alignment.centerLeft,
+          alignment: Alignment.centerRight,
           child: FractionallySizedBox(
             widthFactor: dashedLineFraction,
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
+                //const Icon(Icons.arrow_drop_down, color: AppColors.dashedLine),
                 Expanded(
                   child: CustomPaint(
                     painter: DashedLinePainter(),
                     child: const SizedBox(height: 10),
                   ),
                 ),
-               // const Icon(Icons.arrow_drop_down, color: AppColors.dashedLine),
               ],
             ),
           ),
