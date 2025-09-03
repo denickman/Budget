@@ -22,8 +22,10 @@ class SegmentsStatus extends StatelessWidget {
     double green = getGreen(expected, spent);
     double future = initial - expected;
     double total = initial + red;
-    // Пунктирная линия покрывает gray + red (если есть) или gray + green (если есть) или gray (если нет variance)
+    // Первая пунктирная линия: покрывает gray + red (если есть) или gray + green (если есть) или gray
     double dashedLineFraction = (gray + (red > 0 ? red : green)) / total;
+    // Вторая пунктирная линия: покрывает только gray
+    double grayLineFraction = gray / total;
 
     const double segmentSpacing = 2.0;
     List<Widget> segments = [];
@@ -77,7 +79,7 @@ class SegmentsStatus extends StatelessWidget {
 
     return Column(
       children: [
-        // Пунктирная линия
+        // Первая пунктирная линия
         Align(
           alignment: Alignment.centerRight,
           child: FractionallySizedBox(
@@ -85,7 +87,7 @@ class SegmentsStatus extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                //const Icon(Icons.arrow_drop_down, color: AppColors.dashedLine),
+                // const Icon(Icons.arrow_drop_down, color: AppColors.dashedLine),
                 Expanded(
                   child: CustomPaint(
                     painter: DashedLinePainter(),
@@ -97,9 +99,27 @@ class SegmentsStatus extends StatelessWidget {
           ),
         ),
         // Сегменты (справа налево визуально: серый -> красный/зелёный -> синий)
-        Row(
-          textDirection: TextDirection.rtl,
-          children: segments,
+        Row(textDirection: TextDirection.rtl, children: segments),
+        // Вторая пунктирная линия (покрывает только серый сегмент)
+        SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerRight,
+          child: FractionallySizedBox(
+            widthFactor: grayLineFraction,
+
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                // const Icon(Icons.arrow_drop_up, color: AppColors.dashedLine),
+                Expanded(
+                  child: CustomPaint(
+                    painter: DashedLinePainter(),
+                    child: const SizedBox(height: 0),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );

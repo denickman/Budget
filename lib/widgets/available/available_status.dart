@@ -45,11 +45,7 @@ class AvailableStatus extends StatelessWidget {
             green: green,
           ),
           const SizedBox(height: 8),
-          SegmentsStatus(
-            initial: initial,
-            spent: spent,
-            expected: expected,
-          ),
+          SegmentsStatus(initial: initial, spent: spent, expected: expected),
           const SizedBox(height: 4),
           RemainAndActualStatus(initial: initial, spent: spent),
           const SizedBox(height: 8),
