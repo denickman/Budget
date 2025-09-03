@@ -1,15 +1,16 @@
+// lib/widgets/available/remaining_line.dart
 import 'package:flutter/material.dart';
+import 'package:finapp/constants/app_theme.dart';
+import 'package:finapp/utils/helpers.dart';
 
 class RemainingLine extends StatelessWidget {
   final double initial;
   final double spent;
-  final double Function(double, double) getRemaining;
 
   const RemainingLine({
     super.key,
     required this.initial,
     required this.spent,
-    required this.getRemaining,
   });
 
   @override
@@ -26,12 +27,12 @@ class RemainingLine extends StatelessWidget {
           children: [
             Icon(
               Icons.arrow_drop_down,
-              color: Colors.grey,
+              color: AppColors.dashedLine,
             ),
             Expanded(
               child: CustomPaint(
                 painter: DashedLinePainter(),
-                child: SizedBox(height: 2),
+                child: const SizedBox(height: 2),
               ),
             ),
           ],
@@ -45,7 +46,7 @@ class DashedLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.grey
+      ..color = AppColors.dashedLine
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 

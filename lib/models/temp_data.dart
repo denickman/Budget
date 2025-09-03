@@ -1,6 +1,3 @@
-// Не обязательно, но для кросс-платформы
-// Для min/max, но можно импортировать в виджетах
-
 class TempData {
   final String label;
   final double initial;

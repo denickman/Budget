@@ -1,9 +1,10 @@
+// lib/screens/available_screen.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:finapp/constants/app_theme.dart';
+import 'package:finapp/models/temp_data.dart';
 import 'package:finapp/widgets/available/available_status.dart';
 import 'package:finapp/widgets/available/period_circles.dart';
-import 'package:finapp/models/temp_data.dart';
 
 class AvailableScreen extends StatefulWidget {
   const AvailableScreen({super.key});
@@ -15,11 +16,10 @@ class AvailableScreen extends StatefulWidget {
 }
 
 class _AvailableScreenState extends State<AvailableScreen> {
-  // ===== Properties ======
   bool _isExpanded = false;
   int? _selectedPeriodIndex;
 
-  List<TempData> get mockPeriods {
+  List<TempData> get _mockPeriods {
     final now = DateTime.now();
     final String currentMonth = DateFormat.MMM().format(now);
     final String currentYear = DateFormat.y().format(now);
@@ -29,7 +29,7 @@ class _AvailableScreenState extends State<AvailableScreen> {
     return [
       TempData(label: 'Today', initial: 100.0, spent: 25.0),
       TempData(label: 'Week', initial: 140.0, spent: 20.0),
-      TempData(label: 'Week', initial: 140.0, spent: 50.0),
+      TempData(label: 'Week', initial: 140.0, spent: 50.0), // Note: Duplicate 'Week' – consider fixing if not intended
       TempData(label: currentMonth, initial: 3000.0, spent: 100.0),
       TempData(label: currentYear, initial: 10000.0, spent: 15000.0),
       // TempData(label: '${year + 1}', initial: 10000.0, spent: 5000.0),
@@ -37,7 +37,6 @@ class _AvailableScreenState extends State<AvailableScreen> {
     ];
   }
 
-  // ===== Methods ======
   Widget _showAvailableStatus() {
     if (_selectedPeriodIndex == null) {
       return Container();
@@ -45,13 +44,12 @@ class _AvailableScreenState extends State<AvailableScreen> {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: AvailableStatus(
-        period: mockPeriods[_selectedPeriodIndex!],
+        period: _mockPeriods[_selectedPeriodIndex!],
         isSelected: true,
       ),
     );
   }
 
-  // ===== Lifecycle ======
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,10 +59,7 @@ class _AvailableScreenState extends State<AvailableScreen> {
             ListTile(
               title: Text(
                 'Available Budget',
-                style: GoogleFonts.lato(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
+                style: AppTextStyles.boldLarge,
               ),
               trailing: IconButton(
                 icon: Icon(
@@ -80,7 +75,7 @@ class _AvailableScreenState extends State<AvailableScreen> {
             Padding(
               padding: const EdgeInsets.all(2.0),
               child: PeriodCircles(
-                periods: mockPeriods,
+                periods: _mockPeriods,
                 selectedPeriodIndex: _selectedPeriodIndex,
                 onSelect: (index) =>
                     setState(() => _selectedPeriodIndex = index),

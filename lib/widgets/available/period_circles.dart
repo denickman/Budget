@@ -1,16 +1,15 @@
-import 'package:flutter/material.dart';
+// lib/widgets/available/period_circles.dart
 import 'package:fl_chart/fl_chart.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/material.dart';
+import 'package:finapp/constants/app_theme.dart';
 import 'package:finapp/models/temp_data.dart';
-import 'dart:math' as math; // Для min/max
+import 'package:finapp/utils/helpers.dart';
 
 class PeriodCircles extends StatelessWidget {
-  // ===== Properties =====
   final List<TempData> periods;
   final int? selectedPeriodIndex;
   final Function(int) onSelect;
 
-  // ===== Init =====
   const PeriodCircles({
     super.key,
     required this.periods,
@@ -18,11 +17,10 @@ class PeriodCircles extends StatelessWidget {
     required this.onSelect,
   });
 
-  // ===== Methods =====
-  List<PieChartSectionData> getSections(TempData period, double circleSize) {
+  List<PieChartSectionData> _getSections(TempData period, double circleSize) {
     final double expected = period.expected;
-    final double overspent = math.max(0.0, period.spent - expected);
-    final double saved = math.max(0.0, expected - period.spent);
+    final double overspent = getRed(period.spent, expected);
+    final double saved = getGreen(expected, period.spent);
     final double future = period.initial - expected;
 
     PieChartSectionData makeSection(
@@ -36,7 +34,7 @@ class PeriodCircles extends StatelessWidget {
         radius: circleSize * 0.30,
         showTitle: false,
         borderSide: withBorder
-            ? BorderSide(width: 0.5, color: Colors.blue)
+            ? BorderSide(width: 0.5, color: AppColors.future)
             : BorderSide.none,
       );
     }
@@ -46,39 +44,28 @@ class PeriodCircles extends StatelessWidget {
     // 1. Grey sector = spent (up to expected), без обводки
     if (period.spent > 0) {
       sections.add(
-        makeSection(math.min(period.spent, expected), Colors.grey.shade200, false),
+        makeSection(getGray(period.spent, expected), AppColors.expected, false),
       );
     }
 
     // 2. Red sector = overspent (if any), без обводки
     if (overspent > 0) {
-      sections.add(makeSection(overspent, Colors.red, false));
+      sections.add(makeSection(overspent, AppColors.overspend, false));
     }
 
     // 3. Green sector = saved (if any), с обводкой
     if (saved > 0) {
-      sections.add(makeSection(saved, Colors.green, true));
+      sections.add(makeSection(saved, AppColors.economy, true));
     }
 
     // 4. Blue sector = future budget (remaining after expected), с обводкой
     if (future > 0) {
-      sections.add(makeSection(future, Colors.blue, true));
+      sections.add(makeSection(future, AppColors.future, true));
     }
 
     return sections;
   }
 
-  IconData getCenterIcon(double expected, double spent) {
-    if (spent > expected) return Icons.thumb_down;
-    if (spent < expected) return Icons.thumb_up;
-    return Icons.balance;
-  }
-
-  double getRemaining(double initial, double spent) {
-    return initial - spent;
-  }
-
-  // ===== Lifecycle =====
   @override
   Widget build(BuildContext context) {
     final spacing = 25.0;
@@ -93,7 +80,7 @@ class PeriodCircles extends StatelessWidget {
           TempData period = entry.value;
 
           // Проверяем наличие зелёного сектора (saved)
-          final double saved = math.max(0.0, period.expected - period.spent);
+          final double saved = getGreen(period.expected, period.spent);
           final double sectionsSpace = saved > 0 ? 0.0 : 2.0;
 
           return Padding(
@@ -112,9 +99,8 @@ class PeriodCircles extends StatelessWidget {
                           height: circleSize,
                           child: PieChart(
                             PieChartData(
-                              sections: getSections(period, circleSize),
-                              sectionsSpace:
-                                  sectionsSpace, // Динамическое расстояние
+                              sections: _getSections(period, circleSize),
+                              sectionsSpace: sectionsSpace,
                               startDegreeOffset: -90,
                             ),
                           ),
@@ -122,23 +108,15 @@ class PeriodCircles extends StatelessWidget {
                         Icon(
                           getCenterIcon(period.expected, period.spent),
                           size: circleSize * 0.2,
-                          color: Colors.grey,
-                          // period.spent > period.expected
-                          //     ? Colors.red
-                          //     : (period.spent < period.expected
-                          //           ? Colors.green
-                          //           : Colors.black),
+                          color: AppColors.iconGrey,
                         ),
                       ],
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Text(
                       period.label,
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.lato(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
+                      style: AppTextStyles.boldMedium,
                     ),
                     Text(
                       getRemaining(
@@ -146,20 +124,17 @@ class PeriodCircles extends StatelessWidget {
                         period.spent,
                       ).toStringAsFixed(0),
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.lato(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
+                      style: AppTextStyles.boldMedium,
                     ),
                     AnimatedContainer(
-                      duration: Duration(milliseconds: 300),
+                      duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
-                      margin: EdgeInsets.only(top: 4),
+                      margin: const EdgeInsets.only(top: 4),
                       height: 2,
                       width: selectedPeriodIndex == index ? 24 : 0,
-                      color: Colors.white,
+                      color: AppColors.background,
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                   ],
                 ),
               ),
