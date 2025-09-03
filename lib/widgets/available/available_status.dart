@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:finapp/constants/app_theme.dart';
 import 'package:finapp/models/temp_data.dart';
 import 'package:finapp/utils/helpers.dart';
-import 'package:finapp/widgets/available/remaining_status.dart';
 import 'package:finapp/l10n/app_localizations.dart';
+import 'package:finapp/widgets/available/status_segments.dart';
 
 class AvailableStatus extends StatelessWidget {
   const AvailableStatus({
@@ -14,59 +14,6 @@ class AvailableStatus extends StatelessWidget {
 
   final TempData period;
   final bool isSelected;
-
-  List<Widget> _buildSegments(double initial, double spent) {
-    double expected = period.expected;
-    double gray = getGray(spent, expected);
-    double red = getRed(spent, expected);
-    double green = getGreen(expected, spent);
-    double future = initial - expected;
-    double total = initial + red;
-
-    const double segmentSpacing = 2.0;
-    List<Widget> segments = [];
-
-    if (future > 0) {
-      segments.add(
-        Expanded(
-          flex: (future / total * 100).round(),
-          child: const ColoredSegment(color: AppColors.future),
-        ),
-      );
-    }
-
-    if (green > 0) {
-      segments.add(
-        Expanded(
-          flex: (green / total * 100).round(),
-          child: const ColoredSegment(color: AppColors.economy),
-        ),
-      );
-    } else {
-      segments.add(const SizedBox(width: segmentSpacing));
-    }
-
-    if (red > 0) {
-      segments.add(
-        Expanded(
-          flex: (red / total * 100).round(),
-          child: const ColoredSegment(color: AppColors.overspend),
-        ),
-      );
-    }
-
-    if (gray > 0) {
-      if (red == 0) segments.add(const SizedBox(width: segmentSpacing));
-      segments.add(
-        Expanded(
-          flex: (gray / total * 100).round(),
-          child: const ColoredSegment(color: AppColors.expected),
-        ),
-      );
-    }
-
-    return segments;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +36,7 @@ class AvailableStatus extends StatelessWidget {
               style: AppTextStyles.boldLarge,
             ),
           ),
-          EconomyOverspendExpectedInfoRow(
+          EconomyOrOverspendStatus(
             initial: initial,
             spent: spent,
             expected: expected,
@@ -98,10 +45,13 @@ class AvailableStatus extends StatelessWidget {
             green: green,
           ),
           const SizedBox(height: 8),
-          RemainingStatus(initial: initial, spent: spent),
-          Row(children: _buildSegments(initial, spent)),
+          SegmentsStatus(
+            initial: initial,
+            spent: spent,
+            expected: expected,
+          ),
           const SizedBox(height: 4),
-          RemainingSpentInfoRow(initial: initial, spent: spent),
+          RemainAndActualStatus(initial: initial, spent: spent),
           const SizedBox(height: 8),
           OverallInfo(initial: initial),
         ],
@@ -110,22 +60,7 @@ class AvailableStatus extends StatelessWidget {
   }
 }
 
-class ColoredSegment extends StatelessWidget {
-  final Color color;
-  const ColoredSegment({super.key, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-      height: 8,
-      color: color,
-    );
-  }
-}
-
-class EconomyOverspendExpectedInfoRow extends StatelessWidget {
+class EconomyOrOverspendStatus extends StatelessWidget {
   final double initial;
   final double spent;
   final double expected;
@@ -133,7 +68,7 @@ class EconomyOverspendExpectedInfoRow extends StatelessWidget {
   final double red;
   final double green;
 
-  const EconomyOverspendExpectedInfoRow({
+  const EconomyOrOverspendStatus({
     super.key,
     required this.initial,
     required this.spent,
@@ -189,11 +124,11 @@ class EconomyOverspendExpectedInfoRow extends StatelessWidget {
   }
 }
 
-class RemainingSpentInfoRow extends StatelessWidget {
+class RemainAndActualStatus extends StatelessWidget {
   final double initial;
   final double spent;
 
-  const RemainingSpentInfoRow({
+  const RemainAndActualStatus({
     super.key,
     required this.initial,
     required this.spent,

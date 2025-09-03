@@ -7,7 +7,6 @@ class AppColors {
   static const Color primary = Color.fromARGB(255, 131, 57, 0);
   static const Color overspend = Colors.red;
   static const Color economy = Colors.green;
-  static const Color expected = Colors.grey;
   static const Color future = Colors.blue;
   static const Color neutral = Colors.black;
   static const Color background = Colors.white;
@@ -15,6 +14,8 @@ class AppColors {
   static const Color dashedLine = Colors.grey;
   static const Color segmentSpacing = Colors.transparent; // For spacing if needed
   static const Color iconGrey = Colors.grey;
+
+  static Color expected = Colors.grey.shade300;
 }
 
 // Global Text styles 
